@@ -87,6 +87,24 @@ def animated_ci_band(ci_df):
         yaxis_title="Mean Return",
         height=450
     )
+def rolling_bootstrap_ci(series, window=126, n_boot=1000, alpha=0.05):
+    """
+    Rolling bootstrap confidence intervals for mean return.
+    """
+    results = []
+
+    for i in range(window, len(series)):
+        sample = series.iloc[i - window:i]
+        boot_means = np.random.choice(sample, (n_boot, len(sample)), replace=True).mean(axis=1)
+
+        results.append({
+            "date": series.index[i],
+            "mean": sample.mean(),
+            "lower": np.percentile(boot_means, 100 * alpha / 2),
+            "upper": np.percentile(boot_means, 100 * (1 - alpha / 2)),
+        })
+
+    return pd.DataFrame(results).set_index("date")
 
     return fig
 
