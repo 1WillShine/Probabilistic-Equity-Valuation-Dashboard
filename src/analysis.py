@@ -41,3 +41,37 @@ def pct_distance(series: pd.Series, trend: pd.Series):
     Computes (price - trend) / trend as percent distance.
     """
     return (series - trend) / trend * 100.0
+
+import numpy as np
+import pandas as pd
+
+def compute_returns(price_df):
+    return price_df.pct_change().dropna()
+
+def portfolio_returns(returns, weights):
+    return returns @ weights
+
+def rolling_sharpe(returns, rf_rate, window):
+    daily_rf = rf_rate / 252
+    excess = returns - daily_rf
+    return (
+        excess.rolling(window).mean()
+        / excess.rolling(window).std()
+        * np.sqrt(252)
+    )
+
+def regime_conditioned_sharpe(returns, rf_rate):
+    daily_rf = rf_rate / 252
+    vol = returns.rolling(63).std()
+    regimes = pd.qcut(vol, 3, labels=["Low Vol", "Mid Vol", "High Vol"])
+
+    out = {}
+    for r in regimes.unique():
+        subset = returns[regimes == r]
+        if len(subset) > 30:
+            sharpe = ((subset.mean() - daily_rf) / subset.std()) * np.sqrt(252)
+            out[r] = sharpe
+
+    return pd.DataFrame.from_dict(out, orient="index", columns=["Sharpe"])
+
+
