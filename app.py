@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import date, timedelta
+from src.bootstrap import rolling_bootstrap_ci
+from src.visualization import animated_ci_band
 
 from src.data_fetch import fetch_stock
 from src.analysis import (
@@ -16,6 +18,24 @@ from src.distributions import fit_return_distribution
 st.set_page_config(layout="wide", page_title="Probabilistic Equity Valuation")
 
 st.title("📈 Probabilistic Equity Valuation Dashboard")
+
+
+ci_df = rolling_bootstrap_ci(
+    port_ret,
+    window=window,
+    n_boot=800
+)
+
+st.subheader("🎞 Rolling Return Uncertainty")
+
+ci_fig = animated_ci_band(ci_df)
+st.plotly_chart(ci_fig, use_container_width=True)
+
+st.info(
+    "The shaded region shows the 95% bootstrap confidence interval "
+    "for the rolling mean return. Narrow bands indicate stability; "
+    "widening bands indicate increased uncertainty."
+)
 
 # --------------------------------------------------
 # Sidebar — Portfolio Builder
