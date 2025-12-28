@@ -76,19 +76,58 @@ def rolling_sharpe(returns, rf_rate, window):
         * np.sqrt(252)
     )
 
-def regime_conditioned_sharpe(returns, rf_rate):
-    daily_rf = rf_rate / 252
-    vol = returns.rolling(63).std()
-    regimes = pd.qcut(vol, 3, labels=["Low Vol", "Mid Vol", "High Vol"])
+import pandas as pd
+import numpy as np
 
-    out = {}
-    for r in regimes.unique():
-        subset = returns[regimes == r]
-        if len(subset) > 30:
-            sharpe = ((subset.mean() - daily_rf) / subset.std()) * np.sqrt(252)
-            out[r] = sharpe
+def regime_conditioned_sharpe(
+    returns: pd.Series,
+    rf_rate: float = 0.0,
+    vol_window: int = 21
+) -> pd.Series:
+    """
+    Compute Sharpe ratios conditioned on volatility regimes.
+    Robust to flat or low-variance volatility series.
+    """
 
-    return pd.DataFrame.from_dict(out, orient="index", columns=["Sharpe"])
+    # Rolling volatility
+    vol = returns.rolling(vol_window).std().dropna()
+
+    # Guard: not enough data
+    if vol.nunique() < 3:
+        return pd.Series(
+            {
+                "Low Vol": np.nan,
+                "Mid Vol": np.nan,
+                "High Vol": np.nan,
+            }
+        )
+
+    # Quantile binning with duplicate handling
+    regimes = pd.qcut(
+        vol,
+        q=3,
+        labels=["Low Vol", "Mid Vol", "High Vol"],
+        duplicates="drop"
+    )
+
+    sharpe_by_regime = {}
+
+    aligned_returns = returns.loc[vol.index]
+
+    for regime in regimes.cat.categories:
+        mask = regimes == regime
+        r = aligned_returns[mask]
+
+        if r.std() == 0 or len(r) < 5:
+            sharpe_by_regime[regime] = np.nan
+        else:
+            sharpe_by_regime[regime] = (
+                (r.mean() - rf_rate / 252) / r.std()
+            ) * np.sqrt(252)
+
+    return pd.Series(sharpe_by_regime)
+
+
 
 
 
