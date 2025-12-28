@@ -1,48 +1,118 @@
-# Equity Trend and Valuation Dashboard
+Probabilistic Equity Valuation & Metric Stability Dashboard
+-----------------------------------------------------------
 
-A statistical equity analysis dashboard that models ideal stock price trajectories and evaluates broad market valuation using the Buffett Indicator. Built for quantitative finance research, valuation studies, and exploratory analysis.
+A quantitative finance dashboard that evaluates **how reliable common equity metrics actually are**, using probability theory, resampling, and statistical modeling.
 
-## Overview
+### Motivation
 
-This project provides an interactive Streamlit dashboard that evaluates whether a stock is overvalued, undervalued, or fairly priced relative to an ideal statistical growth trend. It also computes the Buffett Indicator (Total Market Cap divided by GDP) using data from FRED, with an automatic fallback dataset.
+Most retail and professional platforms report **point estimates**:
 
-## Features
+*   Sharpe ratio
+    
+*   Expected return
+    
+*   Fair value trend
+    
 
-### Stock Trend Modeling
-- Log-linear trend (CAGR model)
-- Polynomial-smoothed log trend (noise-reduced fair value curve)
-- Percent deviation from ideal trajectory
-- Adjustable date range
-- Interactive Plotly charts
+This project instead asks:
 
-### Buffett Indicator
-- Fetches Wilshire 5000 Total Market Cap and GDP from FRED
-- Computes Buffett ratio over time
-- Compares against historical median
-- Provides valuation context (cheap, fair, expensive)
+> _How stable are these metrics under resampling and uncertainty?_
 
-### Streamlit Dashboard
-- Real-time inputs (ticker, dates, trend model)
-- Two-panel visualization (price chart + Buffett chart)
-- Summary statistics and valuation commentary
+### Core Features
 
-## Tech Stack
+#### 1\. Statistical Price Trends
 
-Dashboard: Streamlit, Plotly  
-Data: pandas, NumPy  
-APIs: Yahoo Finance, FRED  
-Modeling: Log-space regression, polynomial smoothing  
-Structure: Modular Python package layout
+*   Log-linear (CAGR) growth model
+    
+*   Smoothed log-space trend
+    
+*   Percent deviation from ideal trajectory
+    
 
+#### 2\. Metric Stability via Bootstrapping
 
+*   Bootstrap resampling of returns
+    
+*   Confidence intervals for Sharpe ratio
+    
+*   Visualization of estimation uncertainty
+    
 
-## Running the Project
+#### 3\. Distributional Return Analysis
 
-1. Install dependencies:  pip install -r requirements.txt
-2. Run the Streamlit app: streamlit run app/main.py
+*   Empirical return distribution
+    
+*   Sensitivity to volatility clustering
+    
+*   Sample-size awareness
+    
 
+#### 4\. Macro Valuation Context
 
-## Methodology
+*   Buffett Indicator (Market Cap / GDP)
+    
+*   FRED-backed with automatic fallback
+    
+
+### Methodology
+
+**Trend Modeling**
+
+*   Prices modeled in log space
+    
+*   Trends represent statistical baselines, not targets
+    
+
+**Bootstrap Inference**
+
+*   Returns resampled with replacement
+    
+*   Sharpe ratio distribution estimated empirically
+    
+*   Confidence intervals reflect estimation uncertainty
+    
+
+**Interpretation**
+
+*   Wide confidence intervals → unstable metric
+    
+*   CI crossing zero → weak risk-adjusted evidence
+    
+
+### Assumptions
+
+*   Returns are weakly stationary within sample window
+    
+*   Historical returns approximate future variability
+    
+*   Sharpe ratio meaningful only under finite variance
+    
+*   No transaction costs or slippage modeled
+    
+
+### Limitations
+
+*   Regime shifts invalidate stationarity assumptions
+    
+*   Bootstrap does not correct structural bias
+    
+*   Macro valuation signals are descriptive, not predictive
+    
+*   Trend deviations are statistical, not fundamental
+    
+
+### Tech Stack
+
+*   **Python**: pandas, NumPy
+    
+*   **Visualization**: Plotly
+    
+*   **Dashboard**: Streamlit
+    
+*   **Data**: Yahoo Finance, FRED API
+    
+
+## Methodology in Details
 
 ### Ideal Trend Models
 
@@ -86,6 +156,17 @@ MIT License
 - Yahoo Finance  
 - FRED (Federal Reserve Economic Data)  
 - Streamlit and Plotly documentation
+
+
+### Disclaimer
+
+This project is for **educational and research purposes only**and does not constitute investment advice.
+
+
+## Running the Project
+
+1. Install dependencies:  pip install -r requirements.txt
+2. Run the Streamlit app: streamlit run app/main.py
 
 
 
