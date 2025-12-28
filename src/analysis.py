@@ -48,8 +48,24 @@ import pandas as pd
 def compute_returns(price_df):
     return price_df.pct_change().dropna()
 
-def portfolio_returns(returns, weights):
-    return returns @ weights
+import pandas as pd
+
+def portfolio_returns(returns: pd.DataFrame, weights) -> pd.Series:
+    """
+    Compute portfolio returns with strict alignment.
+    """
+    # Convert weights to Series if needed
+    if not isinstance(weights, pd.Series):
+        weights = pd.Series(weights, index=returns.columns)
+
+    # Reindex to guarantee alignment
+    weights = weights.reindex(returns.columns)
+
+    # Normalize weights defensively
+    weights = weights / weights.sum()
+
+    return returns.dot(weights)
+
 
 def rolling_sharpe(returns, rf_rate, window):
     daily_rf = rf_rate / 252
@@ -73,5 +89,6 @@ def regime_conditioned_sharpe(returns, rf_rate):
             out[r] = sharpe
 
     return pd.DataFrame.from_dict(out, orient="index", columns=["Sharpe"])
+
 
 
