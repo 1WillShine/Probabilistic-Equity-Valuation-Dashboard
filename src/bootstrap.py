@@ -1,0 +1,37 @@
+import numpy as np
+import pandas as pd
+
+def bootstrap_sharpe(returns, n_boot=2000, rf=0.0):
+    """
+    Bootstrap Sharpe ratio confidence intervals.
+
+    Parameters
+    ----------
+    returns : pd.Series
+        Daily return series
+    n_boot : int
+        Number of bootstrap samples
+    rf : float
+        Risk-free rate (daily)
+
+    Returns
+    -------
+    dict with mean, lower, upper
+    """
+    returns = returns.dropna().values
+    sharpe_samples = []
+
+    for _ in range(n_boot):
+        sample = np.random.choice(returns, size=len(returns), replace=True)
+        mu = sample.mean() - rf
+        sigma = sample.std(ddof=1)
+        if sigma > 0:
+            sharpe_samples.append(mu / sigma)
+
+    sharpe_samples = np.array(sharpe_samples)
+
+    return {
+        "mean": sharpe_samples.mean(),
+        "lower": np.percentile(sharpe_samples, 5),
+        "upper": np.percentile(sharpe_samples, 95)
+    }
