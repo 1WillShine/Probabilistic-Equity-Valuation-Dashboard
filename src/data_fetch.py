@@ -6,11 +6,10 @@ import requests
 # -------------------------------------------
 # 1. Fetch Stock Prices (yfinance only)
 # -------------------------------------------
+import pandas as pd
+import yfinance as yf
+
 def fetch_stock(ticker, start, end):
-    """
-    Return daily adjusted close prices for a ticker.
-    Compatible with Streamlit Cloud (no pandas_datareader).
-    """
     df = yf.download(
         ticker,
         start=start,
@@ -19,12 +18,10 @@ def fetch_stock(ticker, start, end):
         progress=False
     )
 
-    # Prefer 'Close' because auto_adjust=True already adjusts it
-    if "Close" in df.columns:
-        out = df[["Close"]].rename(columns={"Close": ticker})
-    else:
-        out = df[["Adj Close"]].rename(columns={"Adj Close": ticker})
+    if df.empty:
+        raise ValueError(f"No data for {ticker}")
 
+    out = df[["Close"]].rename(columns={"Close": ticker})
     out.index = pd.to_datetime(out.index)
     return out
 
@@ -105,3 +102,8 @@ def fetch_buffett_fallback(start, end):
     except Exception as e:
         print("Buffett fallback fetch failed:", e)
         return None
+
+
+
+
+
