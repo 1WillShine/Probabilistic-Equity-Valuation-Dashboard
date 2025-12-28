@@ -35,3 +35,17 @@ def bootstrap_sharpe(returns, n_boot=2000, rf=0.0):
         "lower": np.percentile(sharpe_samples, 5),
         "upper": np.percentile(sharpe_samples, 95)
     }
+    import numpy as np
+
+def bootstrap_ci(series, n=5000, alpha=0.05):
+    means = []
+    arr = series.values
+
+    for _ in range(n):
+        sample = np.random.choice(arr, size=len(arr), replace=True)
+        means.append(sample.mean())
+
+    low = np.percentile(means, 100 * alpha / 2)
+    high = np.percentile(means, 100 * (1 - alpha / 2))
+    return low, high
+
