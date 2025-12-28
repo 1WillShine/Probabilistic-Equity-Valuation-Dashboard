@@ -19,3 +19,17 @@ def fit_exponential_waiting_time(durations):
     durations = np.array(durations)
     lambda_hat = 1.0 / durations.mean()
     return lambda_hat
+import numpy as np
+from scipy import stats
+
+def fit_return_distribution(series):
+    mu, sigma = stats.norm.fit(series)
+    lam = 1 / np.mean(series[series > 0]) if (series > 0).any() else None
+
+    return {
+        "Normal": {"mu": mu, "sigma": sigma},
+        "Exponential (positive tail)": {"lambda": lam},
+        "Skewness": stats.skew(series),
+        "Kurtosis": stats.kurtosis(series)
+    }
+
