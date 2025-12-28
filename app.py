@@ -20,22 +20,7 @@ st.set_page_config(layout="wide", page_title="Probabilistic Equity Valuation")
 st.title("📈 Probabilistic Equity Valuation Dashboard")
 
 
-ci_df = rolling_bootstrap_ci(
-    port_ret,
-    window=window,
-    n_boot=800
-)
 
-st.subheader("🎞 Rolling Return Uncertainty")
-
-ci_fig = animated_ci_band(ci_df)
-st.plotly_chart(ci_fig, use_container_width=True)
-
-st.info(
-    "The shaded region shows the 95% bootstrap confidence interval "
-    "for the rolling mean return. Narrow bands indicate stability; "
-    "widening bands indicate increased uncertainty."
-)
 
 # --------------------------------------------------
 # Sidebar — Portfolio Builder
@@ -158,6 +143,25 @@ sharpe_fig.add_trace(go.Scatter(
     name="Rolling Sharpe"
 ))
 sharpe_fig.update_layout(title="Rolling Portfolio Sharpe")
+# --------------------------------------------------
+# Rolling Bootstrap CI (NOW port_ret EXISTS)
+# --------------------------------------------------
+ci_df = rolling_bootstrap_ci(
+    port_ret,
+    window=window,
+    n_boot=800
+)
+
+st.subheader("🎞 Rolling Return Uncertainty")
+
+ci_fig = animated_ci_band(ci_df)
+st.plotly_chart(ci_fig, use_container_width=True)
+
+st.info(
+    "The shaded region shows the 95% bootstrap confidence interval "
+    "for the rolling mean return. Narrow bands indicate stability; "
+    "widening bands indicate increased uncertainty."
+)
 
 # --------------------------------------------------
 # Layout
