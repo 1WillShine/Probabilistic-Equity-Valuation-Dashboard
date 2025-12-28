@@ -147,6 +147,26 @@ Around 100%: fairly valued
 Above 120%: overvalued  
 Above 150%: highly overvalued
 
+### Rolling Bootstrap Confidence Intervals
+
+To quantify uncertainty in estimated portfolio returns, we compute
+rolling bootstrap confidence intervals for the mean return.
+
+For each rolling window:
+1. Resample returns with replacement
+2. Compute the mean for each bootstrap sample
+3. Extract the 2.5% and 97.5% quantiles
+
+This provides a non-parametric estimate of uncertainty that:
+- Makes no normality assumption
+- Captures regime-dependent volatility
+- Visualizes estimation risk over time
+
+Interpretation:
+- Narrow CI bands → stable return regime
+- Wide CI bands → heightened uncertainty or regime shift
+
+
 ## License
 
 MIT License
