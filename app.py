@@ -113,28 +113,31 @@ weights = weights.loc[valid_tickers]
 # --------------------------------------------------
 # Analytics
 # --------------------------------------------------
+prices = load_prices(weights.index.tolist(), start_date, end_date)
+
+if prices is None or prices.empty:
+    st.error("No valid price data available.")
+    st.stop()
+
 returns = compute_returns(prices)
 
-# 🔒 HARD ALIGNMENT (THIS FIXES EVERYTHING)
-common_assets = returns.columns.intersection(weights.index)
+# 🔒 GUARANTEED ALIGNMENT
+common_assets = sorted(set(returns.columns) & set(weights.index))
 
-if len(common_assets) == 0:
-    st.error("No overlapping assets between returns and weights.")
+if not common_assets:
+    st.error(
+        f"No overlapping assets.\n\n"
+        f"Returns columns: {list(returns.columns)}\n"
+        f"Weights index: {list(weights.index)}"
+    )
     st.stop()
 
 returns = returns[common_assets]
 weights = weights.loc[common_assets]
-
-# Renormalize after alignment
 weights = weights / weights.sum()
 
 port_ret = portfolio_returns(returns, weights)
 
-
-rolling_sh = rolling_sharpe(port_ret, rf_rate, window)
-regime_sh = regime_conditioned_sharpe(port_ret, rf_rate)
-ci_low, ci_high = bootstrap_ci(port_ret)
-dist_stats = fit_return_distribution(port_ret)
 
 # --------------------------------------------------
 # Visualizations
