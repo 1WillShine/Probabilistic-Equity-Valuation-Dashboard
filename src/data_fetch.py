@@ -2,30 +2,41 @@
 import yfinance as yf
 import pandas as pd
 
-def fetch_stock(ticker, start, end):
+def fetch_stock(ticker: str, start, end):
     df = yf.download(
         ticker,
         start=start,
         end=end,
         auto_adjust=True,
-        progress=False,
-        group_by="column"
+        progress=False
     )
 
-    if df.empty:
+    # ❌ No data
+    if df is None or df.empty:
         return None
 
-    # Handle MultiIndex edge-case
+    # 🔹 Case 1: MultiIndex columns (rare but deadly)
     if isinstance(df.columns, pd.MultiIndex):
-        df = df["Close"]
+        if "Close" in df.columns.get_level_values(0):
+            df = df["Close"]
+        else:
+            return None
 
-    if "Close" not in df.columns and df.name != "Close":
+    # 🔹 Case 2: DataFrame with Close column
+    if isinstance(df, pd.DataFrame):
+        if "Close" not in df.columns:
+            return None
+        prices = df["Close"]
+
+    # 🔹 Case 3: Series already
+    elif isinstance(df, pd.Series):
+        prices = df
+
+    else:
         return None
 
-    prices = df["Close"] if "Close" in df.columns else df
-    prices = prices.rename(ticker).to_frame()
+    # 🔹 Final normalization
+    prices = prices.dropna()
+    prices.name = ticker
 
-    prices.index = pd.to_datetime(prices.index)
-    return prices
-
-
+    return prices.to_frame()
