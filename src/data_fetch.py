@@ -2,41 +2,34 @@
 import yfinance as yf
 import pandas as pd
 
-def fetch_stock(ticker: str, start, end):
-    df = yf.download(
-        ticker,
-        start=start,
-        end=end,
-        auto_adjust=True,
-        progress=False
-    )
+def fetch_prices(tickers, start, end):
+    """
+    Batch fetch prices to avoid Yahoo rate limits.
+    Returns Close prices DataFrame.
+    """
+    try:
+        data = yf.download(
+            tickers=tickers,
+            start=start,
+            end=end,
+            progress=False,
+            auto_adjust=True,
+            threads=False
+        )
 
-    # ❌ No data
-    if df is None or df.empty:
-        return None
+        if data.empty:
+            return None
 
-    # 🔹 Case 1: MultiIndex columns (rare but deadly)
-    if isinstance(df.columns, pd.MultiIndex):
-        if "Close" in df.columns.get_level_values(0):
-            df = df["Close"]
+        # Handle multi-index columns
+        if isinstance(data.columns, pd.MultiIndex):
+            prices = data["Close"]
         else:
-            return None
+            prices = data[["Close"]]
+            prices.columns = tickers
 
-    # 🔹 Case 2: DataFrame with Close column
-    if isinstance(df, pd.DataFrame):
-        if "Close" not in df.columns:
-            return None
-        prices = df["Close"]
+        return prices
 
-    # 🔹 Case 3: Series already
-    elif isinstance(df, pd.Series):
-        prices = df
-
-    else:
+    except Exception as e:
         return None
 
-    # 🔹 Final normalization
-    prices = prices.dropna()
-    prices.name = ticker
 
-    return prices.to_frame()
