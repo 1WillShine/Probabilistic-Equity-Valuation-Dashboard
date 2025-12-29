@@ -113,7 +113,7 @@ weights = weights.loc[valid_tickers]
 # --------------------------------------------------
 prices = load_prices(weights.index.tolist(), start_date, end_date)
 
-if prices is None or prices.empty:
+if prices is None or len(prices)==0:
     st.error("No valid price data available.")
     st.stop()
 
