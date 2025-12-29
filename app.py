@@ -4,8 +4,8 @@ import plotly.graph_objects as go
 from datetime import date, timedelta
 from src.bootstrap import rolling_bootstrap_ci
 from src.visualization import animated_ci_band
+from src.data_fetch import fetch_prices
 
-from src.data_fetch import fetch_stock
 from src.analysis import (
     compute_returns,
     portfolio_returns,
@@ -85,28 +85,18 @@ weights = qty_series / qty_series.sum()
 # --------------------------------------------------
 # Fetch prices (robust)
 # --------------------------------------------------
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, show_spinner=False)
 def load_prices(tickers, start, end):
-    dfs = []
-    valid = []
+    prices = fetch_prices(tickers, start, end)
 
-    for t in tickers:
-        df = fetch_stock(t, start, end)
-
-        if df is not None and not df.empty:
-            dfs.append(df)
-            valid.append(t)
-
-    # ❌ Nothing valid → return explicit tuple
-    if len(dfs) == 0:
+    if prices is None or prices.empty:
         return None, None
 
-    prices = pd.concat(dfs, axis=1)
-
-    # Drop rows where ALL assets are missing
     prices = prices.dropna(how="all")
+    valid = prices.columns.tolist()
 
     return prices, valid
+
 
 
 
