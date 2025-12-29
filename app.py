@@ -87,22 +87,20 @@ weights = qty_series / qty_series.sum()
 # --------------------------------------------------
 @st.cache_data(ttl=3600)
 def load_prices(tickers, start, end):
-    dfs = []
-    valid = []
+    dfs = {}
 
     for t in tickers:
         df = fetch_stock(t, start, end)
-        if df is not None:
-            dfs.append(df)
-            valid.append(t)
-        else:
-            st.warning(f"⚠️ Data unavailable for {t}, skipped.")
+        if df is not None and not df.empty:
+            dfs[t] = df[t]
 
     if not dfs:
-        return None, None
+        return None
 
-    prices = pd.concat(dfs, axis=1).dropna()
-    return prices, valid
+    prices = pd.DataFrame(dfs)
+    prices = prices.dropna(how="any")  # common trading days only
+    return prices
+
 
 prices, valid_tickers = load_prices(weights.index.tolist(), start_date, end_date)
 
