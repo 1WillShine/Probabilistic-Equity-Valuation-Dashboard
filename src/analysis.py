@@ -53,12 +53,28 @@ def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
 import pandas as pd
 
 def portfolio_returns(returns: pd.DataFrame, weights: pd.Series) -> pd.Series:
-    weights = weights.reindex(returns.columns)
+    if returns is None or returns.empty:
+        raise ValueError("Returns are empty.")
 
-    if weights.isna().any() or weights.sum() == 0:
-        raise ValueError("Weights invalid after alignment.")
+    if not isinstance(weights, pd.Series):
+        weights = pd.Series(weights)
 
-    return returns.mul(weights, axis=1).sum(axis=1)
+    # Align strictly
+    common = returns.columns.intersection(weights.index)
+
+    if common.empty:
+        raise ValueError("No overlapping assets between returns and weights.")
+
+    returns = returns[common]
+    weights = weights[common]
+
+    weights = weights / weights.sum()
+
+    port = returns @ weights
+    port.name = "Portfolio"
+
+    return port.dropna()
+
 
 
 def rolling_sharpe(returns, rf_rate, window):
@@ -120,6 +136,7 @@ def regime_conditioned_sharpe(
             ) * np.sqrt(252)
 
     return pd.Series(sharpe_by_regime)
+
 
 
 
