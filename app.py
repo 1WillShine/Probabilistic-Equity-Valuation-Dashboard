@@ -102,8 +102,16 @@ def load_prices(tickers, start, end):
 
 prices, valid_tickers = load_prices(weights.index.tolist(), start_date, end_date)
 
-if prices is None:
-    st.error("No valid price data available.")
+if prices is None or not isinstance(prices, pd.DataFrame):
+    st.warning(
+        "⚠️ Price data unavailable.\n\n"
+        "This is usually due to Yahoo rate limits.\n"
+        "Wait ~60 seconds and refresh."
+    )
+    st.stop()
+
+if len(prices) ==0:
+    st.warning("⚠️ Retrieved empty price data.")
     st.stop()
 
 weights = weights.loc[valid_tickers]
