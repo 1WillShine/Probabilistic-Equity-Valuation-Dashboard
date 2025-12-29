@@ -46,9 +46,24 @@ import numpy as np
 import pandas as pd
 
 def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
-    returns = prices.pct_change()
-    returns = returns.dropna(how="all")
+    """
+    Compute daily returns with strict validation.
+    """
+    if prices is None:
+        raise ValueError("Prices is None.")
+
+    if not isinstance(prices, pd.DataFrame):
+        raise TypeError(f"Prices must be DataFrame, got {type(prices)}")
+
+    prices = prices.sort_index()
+
+    returns = prices.pct_change().dropna(how="all")
+
+    if returns.empty:
+        raise ValueError("Returns computation resulted in empty DataFrame.")
+
     return returns
+
 
 import pandas as pd
 
@@ -136,6 +151,7 @@ def regime_conditioned_sharpe(
             ) * np.sqrt(252)
 
     return pd.Series(sharpe_by_regime)
+
 
 
 
