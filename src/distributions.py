@@ -22,14 +22,67 @@ def fit_exponential_waiting_time(durations):
 import numpy as np
 from scipy import stats
 
-def fit_return_distribution(series):
-    mu, sigma = stats.norm.fit(series)
-    lam = 1 / np.mean(series[series > 0]) if (series > 0).any() else None
+import numpy as np
+import pandas as pd
+from scipy import stats
 
-    return {
-        "Normal": {"mu": mu, "sigma": sigma},
-        "Exponential (positive tail)": {"lambda": lam},
-        "Skewness": stats.skew(series),
-        "Kurtosis": stats.kurtosis(series)
+def fit_return_distribution(series: pd.Series) -> dict:
+    """
+    Fit parametric distributions to return series.
+    Robust to NaNs, infs, and short samples.
+    """
+
+    # --------------------------------------------------
+    # Sanitize data
+    # --------------------------------------------------
+    clean = (
+        series
+        .replace([np.inf, -np.inf], np.nan)
+        .dropna()
+    )
+
+    # Guard: insufficient data
+    if len(clean) < 30:
+        return {
+            "status": "insufficient_data",
+            "n_obs": len(clean)
+        }
+
+    results = {
+        "n_obs": len(clean)
     }
+
+    # --------------------------------------------------
+    # Normal distribution
+    # --------------------------------------------------
+    mu, sigma = stats.norm.fit(clean)
+
+    results["normal"] = {
+        "mu": float(mu),
+        "sigma": float(sigma),
+        "skew": float(stats.skew(clean)),
+        "kurtosis": float(stats.kurtosis(clean))
+    }
+
+    # --------------------------------------------------
+    # Student-t distribution (fat tails)
+    # --------------------------------------------------
+    try:
+        df, loc, scale = stats.t.fit(clean)
+        results["student_t"] = {
+            "df": float(df),
+            "loc": float(loc),
+            "scale": float(scale)
+        }
+    except Exception:
+        results["student_t"] = "fit_failed"
+
+    # --------------------------------------------------
+    # Jarque–Bera normality test
+    # --------------------------------------------------
+    jb_stat, jb_p = stats.jarque_bera(clean)
+    results["jarque_bera_p"] = float(jb_p)
+
+    return results
+
 
