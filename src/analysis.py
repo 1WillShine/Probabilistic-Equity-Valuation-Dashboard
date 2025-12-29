@@ -45,8 +45,10 @@ def pct_distance(series: pd.Series, trend: pd.Series):
 import numpy as np
 import pandas as pd
 
-def compute_returns(price_df):
-    return price_df.pct_change().dropna()
+def compute_returns(prices: pd.DataFrame) -> pd.DataFrame:
+    returns = prices.pct_change()
+    returns = returns.dropna(how="all")
+    return returns
 
 import pandas as pd
 
@@ -118,6 +120,7 @@ def regime_conditioned_sharpe(
             ) * np.sqrt(252)
 
     return pd.Series(sharpe_by_regime)
+
 
 
 
