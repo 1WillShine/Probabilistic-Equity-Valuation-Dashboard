@@ -50,21 +50,13 @@ def compute_returns(price_df):
 
 import pandas as pd
 
-def portfolio_returns(returns: pd.DataFrame, weights) -> pd.Series:
-    """
-    Compute portfolio returns with strict alignment.
-    """
-    # Convert weights to Series if needed
-    if not isinstance(weights, pd.Series):
-        weights = pd.Series(weights, index=returns.columns)
-
-    # Reindex to guarantee alignment
+def portfolio_returns(returns: pd.DataFrame, weights: pd.Series) -> pd.Series:
     weights = weights.reindex(returns.columns)
 
-    # Normalize weights defensively
-    weights = weights / weights.sum()
+    if weights.isna().any() or weights.sum() == 0:
+        raise ValueError("Weights invalid after alignment.")
 
-    return returns.dot(weights)
+    return returns.mul(weights, axis=1).sum(axis=1)
 
 
 def rolling_sharpe(returns, rf_rate, window):
@@ -126,6 +118,7 @@ def regime_conditioned_sharpe(
             ) * np.sqrt(252)
 
     return pd.Series(sharpe_by_regime)
+
 
 
 
