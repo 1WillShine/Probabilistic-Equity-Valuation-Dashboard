@@ -119,11 +119,11 @@ weights = weights.loc[valid_tickers]
 # --------------------------------------------------
 # Analytics
 # --------------------------------------------------
-prices = load_prices(weights.index.tolist(), start_date, end_date)
+#prices = load_prices(weights.index.tolist(), start_date, end_date)
 
-if prices is None or len(prices)==0:
-    st.error("No valid price data available.")
-    st.stop()
+#if prices is None or len(prices)==0:
+#    st.error("No valid price data available.")
+#    st.stop()
 
 returns = compute_returns(prices)
 
