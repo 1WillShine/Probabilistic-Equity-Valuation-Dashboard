@@ -148,6 +148,27 @@ port_ret = portfolio_returns(returns, weights)
 # --------------------------------------------------
 # Visualizations
 # --------------------------------------------------
+# --------------------------------------------------
+# 3. RUN THE CALCULATIONS (Add this block!)
+# --------------------------------------------------
+
+# 1. Calculate Rolling Sharpe (This creates the 'rolling_sh' variable)
+rolling_sh = rolling_sharpe(port_ret, rf_rate, window)
+
+# 2. Calculate Regime-Conditioned Sharpe
+regime_sh = regime_conditioned_sharpe(port_ret, rf_rate)
+
+# 3. Fit the Distribution (for the JSON stats)
+dist_stats = fit_return_distribution(port_ret)
+
+# 4. Calculate Rolling Bootstrap Confidence Intervals
+ci_df = rolling_bootstrap_ci(port_ret, window=window, n_boot=800)
+
+# 5. Extract latest CI values for the metric cards (col2)
+ci_low = ci_df['low'].iloc[-1]
+ci_high = ci_df['high'].iloc[-1]
+
+
 alloc_fig = go.Figure(
     go.Pie(
         labels=weights.index,
@@ -159,8 +180,8 @@ alloc_fig.update_layout(title="Portfolio Allocation")
 
 sharpe_fig = go.Figure()
 sharpe_fig.add_trace(go.Scatter(
-    x=rolling_sharpe.index,
-    y=rolling_sharpe.values,
+    x=rolling_sh.index,
+    y=rolling_sh.values,
     mode="lines",
     name="Rolling Sharpe"
 ))
