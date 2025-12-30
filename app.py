@@ -159,8 +159,8 @@ alloc_fig.update_layout(title="Portfolio Allocation")
 
 sharpe_fig = go.Figure()
 sharpe_fig.add_trace(go.Scatter(
-    x=rolling_sh.index,
-    y=rolling_sh.values,
+    x=rolling_sharpe.index,
+    y=rolling_sharpe.values,
     mode="lines",
     name="Rolling Sharpe"
 ))
