@@ -165,8 +165,8 @@ dist_stats = fit_return_distribution(port_ret)
 ci_df = rolling_bootstrap_ci(port_ret, window=window, n_boot=800)
 
 # 5. Extract latest CI values for the metric cards (col2)
-ci_low = ci_df['low'].iloc[-1]
-ci_high = ci_df['high'].iloc[-1]
+ci_low = ci_df['lower'].iloc[-1]
+ci_high = ci_df['upper'].iloc[-1]
 
 
 alloc_fig = go.Figure(
