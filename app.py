@@ -261,8 +261,80 @@ with col2:
     st.dataframe(regime_sh)
 
     st.write("**Return Distribution Diagnostics**")
-    st.json(dist_stats)
+    st.write("**Return Distribution Diagnostics**")
+
+colA, colB = st.columns(2)
+
+with colA:
+    st.metric("Observations", dist_stats["n_obs"])
+    st.metric("Skewness", f'{dist_stats["normal"]["skew"]:.2f}')
+    st.metric("Kurtosis", f'{dist_stats["normal"]["kurtosis"]:.2f}')
+
+with colB:
+    st.metric("Normal μ", f'{dist_stats["normal"]["mu"]:.4%}')
+    st.metric("Normal σ", f'{dist_stats["normal"]["sigma"]:.2%}')
+    st.metric("JB p-value", f'{dist_stats["jarque_bera_p"]:.2e}')
+import numpy as np
+from scipy import stats
+
+st.write("**Empirical Return Distribution**")
+
+hist_x = port_ret.dropna()
+
+x_grid = np.linspace(
+    hist_x.quantile(0.001),
+    hist_x.quantile(0.999),
+    400
+)
+
+fig = go.Figure()
+
+# Histogram
+fig.add_trace(go.Histogram(
+    x=hist_x,
+    histnorm="probability density",
+    name="Empirical",
+    nbinsx=60,
+    opacity=0.6
+))
+
+# Normal fit
+mu = dist_stats["normal"]["mu"]
+sigma = dist_stats["normal"]["sigma"]
+fig.add_trace(go.Scatter(
+    x=x_grid,
+    y=stats.norm.pdf(x_grid, mu, sigma),
+    name="Normal Fit",
+    line=dict(dash="dash")
+))
+
+# Student-t fit
+df = dist_stats["student_t"]["df"]
+loc = dist_stats["student_t"]["loc"]
+scale = dist_stats["student_t"]["scale"]
+fig.add_trace(go.Scatter(
+    x=x_grid,
+    y=stats.t.pdf(x_grid, df, loc, scale),
+    name="Student-t Fit"
+))
+
+fig.update_layout(
+    title="Return Distribution: Empirical vs Fitted",
+    xaxis_title="Daily Return",
+    yaxis_title="Density",
+    bargap=0.02
+)
+
+st.plotly_chart(fig, use_container_width=True)
+if dist_stats["jarque_bera_p"] < 0.01:
+    st.warning(
+        "Returns strongly deviate from normality.\n\n"
+        "• Heavy tails detected\n"
+        "• Sharpe ratio estimates may be unstable\n"
+        "• Student-t distribution provides a better fit"
+    )
 
 st.caption(
     "Probabilistic estimates only. Not investment advice."
 )
+
