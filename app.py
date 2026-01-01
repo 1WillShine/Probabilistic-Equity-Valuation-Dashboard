@@ -260,8 +260,7 @@ with col2:
     st.write("**Regime-Conditioned Sharpe**")
     st.dataframe(regime_sh)
 
-    st.write("**Return Distribution Diagnostics**")
-    st.write("**Return Distribution Diagnostics**")
+    
 
 colA, colB = st.columns(2)
 
