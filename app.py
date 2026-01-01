@@ -25,17 +25,23 @@ st.title("📈 Probabilistic Equity Valuation Dashboard")
 # --------------------------------------------------
 # Sidebar — Portfolio Builder
 # --------------------------------------------------
+@st.cache_data
+def get_sp500_tickers():
+    # Scrapes the current S&P 500 list from Wikipedia
+    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    table = pd.read_html(url)
+    df = table[0]
+    return sorted(df['Symbol'].tolist())
+
 with st.sidebar:
     st.header("Portfolio Builder")
-
-    available_tickers = [
-        "AAPL", "MSFT", "GOOGL", "AMZN", "META",
-        "NVDA", "TSLA", "JPM", "V", "SPY", "QQQ"
-    ]
+    
+    # Automatically get the list
+    available_tickers = get_sp500_tickers()
 
     selected = st.multiselect(
-        "Select assets",
-        available_tickers,
+        "Select assets from S&P 500",
+        options=available_tickers,
         default=["AAPL", "MSFT"]
     )
 
