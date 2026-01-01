@@ -25,19 +25,36 @@ st.title("📈 Probabilistic Equity Valuation Dashboard")
 # --------------------------------------------------
 # Sidebar — Portfolio Builder
 # --------------------------------------------------
-@st.cache_data
-def get_sp500_tickers():
-    # Scrapes the current S&P 500 list from Wikipedia
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-    table = pd.read_html(url)
-    df = table[0]
-    return sorted(df['Symbol'].tolist())
 
 with st.sidebar:
     st.header("Portfolio Builder")
     
     # Automatically get the list
-    available_tickers = get_sp500_tickers()
+    available_tickers = sorted([
+        # --- BIG TECH (Magnificent 7 & Semi) ---
+        "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA", "AVGO", "AMD", "INTC", "QCOM", "ADBE", "CRM", "NFLX",
+        
+        # --- FINANCE & PAYMENTS ---
+        "JPM", "BAC", "WFC", "GS", "MS", "V", "MA", "PYPL", "AXP", "BLK", "BRK-B",
+        
+        # --- HEALTHCARE & BIO ---
+        "LLY", "UNH", "JNJ", "PFE", "ABBV", "MRK", "AMGN", "ISRG", "TMO",
+        
+        # --- CONSUMER & RETAIL ---
+        "WMT", "COST", "PG", "KO", "PEP", "NKE", "SBUX", "MCD", "DIS", "HD", "LOW",
+        
+        # --- ENERGY & INDUSTRIALS ---
+        "XOM", "CVX", "CAT", "BA", "GE", "UNP", "HON", "RTX",
+        
+        # --- REAL ESTATE / REITS (Useful for your metro project) ---
+        "PLD", "AMT", "EQIX", "O", "WELL", "PSA", "SPG", "VICI", "DLR",
+        
+        # --- ETFS & INDICES ---
+        "SPY", "QQQ", "VOO", "IVV", "IWM", "DIA", "VTI", "VUG", "SCHD", "ARKK", "TLT", "GLD",
+        
+        # --- CRYPTO (Yahoo Finance Format) ---
+        "BTC-USD", "ETH-USD", "SOL-USD"
+    ])
 
     selected = st.multiselect(
         "Select assets from S&P 500",
