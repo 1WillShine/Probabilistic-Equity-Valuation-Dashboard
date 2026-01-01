@@ -1,192 +1,39 @@
-Probabilistic Equity Valuation & Metric Stability Dashboard
------------------------------------------------------------
+📈 Probabilistic Equity Valuation & Metric Stability Dashboard
 
-A quantitative finance dashboard that evaluates **how reliable common equity metrics actually are**, using probability theory, resampling, and statistical modeling.
+Quantifying Estimation Risk in Financial Metrics
 
-### Motivation
+Motivation
 
-Most retail and professional platforms report **point estimates**:
+Most financial platforms report performance metrics such as Sharpe ratio, expected return, or valuation trends as single point estimates. As a student learning probability theory and quantitative finance, I became interested in how reliable these metrics actually are given limited data, market noise, and regime changes. This project applies probabilistic inference to quantify the uncertainty behind commonly used financial metrics rather than treating them as deterministic truths.
 
-*   Sharpe ratio
-    
-*   Expected return
-    
-*   Fair value trend
-    
+Project Overview
 
-This project instead asks:
+This dashboard evaluates the statistical stability of equity and portfolio metrics using resampling, distribution diagnostics, and probabilistic visualization. Instead of asking whether a metric is “good” or “bad,” the system asks how uncertain that metric is and whether it is statistically meaningful. The result is a framework that highlights estimation risk and discourages overconfidence in point estimates.
 
-> _How stable are these metrics under resampling and uncertainty?_
+Methodology
 
-### Core Features
+Prices are modeled in log space to reflect their multiplicative growth structure, allowing long-term trends to be interpreted as statistical baselines rather than targets. Returns are analyzed using bootstrap resampling to empirically estimate the sampling distributions of metrics such as mean return and Sharpe ratio without imposing normality assumptions. Confidence intervals are computed using percentile-based methods, and return distributions are evaluated for skewness, kurtosis, and fat tails using both normal and Student-t fits.
 
-#### 1\. Statistical Price Trends
+Interpretation Framework
 
-*   Log-linear (CAGR) growth model
-    
-*   Smoothed log-space trend
-    
-*   Percent deviation from ideal trajectory
-    
+Wide confidence intervals indicate unstable or weakly supported metrics, while intervals crossing zero suggest little statistical evidence of risk-adjusted performance. Rolling bootstrap windows are used to detect regime-dependent instability over time. Macro valuation context is provided through the Buffett Indicator, which is presented descriptively rather than predictively.
 
-#### 2\. Metric Stability via Bootstrapping
+Results & Insights
 
-*   Bootstrap resampling of returns
-    
-*   Confidence intervals for Sharpe ratio
-    
-*   Visualization of estimation uncertainty
-    
+The analysis shows that many commonly cited performance metrics are far less stable than their point estimates suggest, especially over short samples or volatile regimes. Heavy tails and skewness dominate empirical return distributions, reinforcing the limitations of Gaussian assumptions. The project demonstrates that estimation risk is often as important as expected return when interpreting financial performance.
 
-#### 3\. Distributional Return Analysis
+Technical Stack
 
-*   Empirical return distribution
-    
-*   Sensitivity to volatility clustering
-    
-*   Sample-size awareness
-    
+The project is built in Python using pandas and NumPy for computation, SciPy for statistical diagnostics, Plotly for interactive visualization, and Streamlit for dashboard deployment. Financial data is sourced from Yahoo Finance, with macroeconomic data from FRED and fallback logic to handle missing data and rate limits.
 
-#### 4\. Macro Valuation Context
+Assumptions & Limitations
 
-*   Buffett Indicator (Market Cap / GDP)
-    
-*   FRED-backed with automatic fallback
-    
+Returns are assumed to be weakly stationary within rolling windows, and transaction costs are not modeled. Bootstrap inference captures sampling uncertainty but does not correct for structural bias or regime shifts. Valuation signals are descriptive and not intended as investment recommendations.
 
-### Methodology
+How to Run
 
-**Trend Modeling**
+Install dependencies using pip install -r requirements.txt, then run the application with streamlit run app/main.py.
 
-*   Prices modeled in log space
-    
-*   Trends represent statistical baselines, not targets
-    
+Disclaimer
 
-**Bootstrap Inference**
-
-*   Returns resampled with replacement
-    
-*   Sharpe ratio distribution estimated empirically
-    
-*   Confidence intervals reflect estimation uncertainty
-    
-
-**Interpretation**
-
-*   Wide confidence intervals → unstable metric
-    
-*   CI crossing zero → weak risk-adjusted evidence
-    
-
-### Assumptions
-
-*   Returns are weakly stationary within sample window
-    
-*   Historical returns approximate future variability
-    
-*   Sharpe ratio meaningful only under finite variance
-    
-*   No transaction costs or slippage modeled
-    
-
-### Limitations
-
-*   Regime shifts invalidate stationarity assumptions
-    
-*   Bootstrap does not correct structural bias
-    
-*   Macro valuation signals are descriptive, not predictive
-    
-*   Trend deviations are statistical, not fundamental
-    
-
-### Tech Stack
-
-*   **Python**: pandas, NumPy
-    
-*   **Visualization**: Plotly
-    
-*   **Dashboard**: Streamlit
-    
-*   **Data**: Yahoo Finance, FRED API
-    
-
-## Methodology in Details
-
-### Ideal Trend Models
-
-1. Log-linear (CAGR) model  
-   - Apply log transform to prices  
-   - Fit linear regression over time  
-   - Exponentiate fitted line back to price space  
-   - Represents long-term exponential growth
-
-2. Smoothed log trend  
-   - Log-transform the price  
-   - Apply polynomial smoothing  
-   - Noise-reduced fair-value curve  
-
-### Deviation Metric
-
-Deviation (%) = (Actual Price - Ideal Price) / Ideal Price * 100
-
-Interpretation:  
-Above 20%: likely overvalued  
-0% to 20%: slightly overvalued  
-0% to -20%: slightly undervalued  
-Below -20%: undervalued
-
-### Buffett Indicator
-
-Buffett Ratio = Total Market Cap / GDP
-
-Interpretation:  
-Below 70%: undervalued  
-Around 100%: fairly valued  
-Above 120%: overvalued  
-Above 150%: highly overvalued
-
-### Rolling Bootstrap Confidence Intervals
-
-To quantify uncertainty in estimated portfolio returns, we compute
-rolling bootstrap confidence intervals for the mean return.
-
-For each rolling window:
-1. Resample returns with replacement
-2. Compute the mean for each bootstrap sample
-3. Extract the 2.5% and 97.5% quantiles
-
-This provides a non-parametric estimate of uncertainty that:
-- Makes no normality assumption
-- Captures regime-dependent volatility
-- Visualizes estimation risk over time
-
-Interpretation:
-- Narrow CI bands → stable return regime
-- Wide CI bands → heightened uncertainty or regime shift
-
-
-## License
-
-MIT License
-
-## Acknowledgements
-
-- Yahoo Finance  
-- FRED (Federal Reserve Economic Data)  
-- Streamlit and Plotly documentation
-
-
-### Disclaimer
-
-This project is for **educational and research purposes only**and does not constitute investment advice.
-
-
-## Running the Project
-
-1. Install dependencies:  pip install -r requirements.txt
-2. Run the Streamlit app: streamlit run app/main.py
-
-
-
+This project is for educational and research purposes only and does not constitute investment advice.
