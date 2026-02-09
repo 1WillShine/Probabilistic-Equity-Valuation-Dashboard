@@ -334,6 +334,6 @@ if dist_stats["jarque_bera_p"] < 0.01:
     )
 
 st.caption(
-    "Probabilistic estimates only. Not investment advice."
+    "Probabilistic estimates only. Not Investment Advice."
 )
 
