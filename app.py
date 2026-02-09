@@ -17,7 +17,7 @@ from src.distributions import fit_return_distribution
 
 st.set_page_config(layout="wide", page_title="Probabilistic Equity Valuation")
 
-st.title("📈 Probabilistic Equity Valuation Dashboard")
+st.title("📈 Probabilistic Equity Valuation Dashboard 📈")
 
 
 
