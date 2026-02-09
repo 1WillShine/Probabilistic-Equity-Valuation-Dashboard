@@ -271,7 +271,7 @@ with colA:
 
 with colB:
     st.metric("Normal μ", f'{dist_stats["normal"]["mu"]:.4%}')
-    st.metric("Normal σ", f'{dist_stats["normal"]["sigma"]:.2%}')
+    st.metric("Normal σ", f'{dist_stats["normal"]["sigma"]:.3%}')
     st.metric("JB p-value", f'{dist_stats["jarque_bera_p"]:.2e}')
 import numpy as np
 from scipy import stats
